@@ -57,12 +57,7 @@
       return;
     }
 
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
-      acceptNode: (node) =>
-        node instanceof Element && node.getAttribute(FORCED_ATTR) === 'true'
-          ? NodeFilter.FILTER_REJECT
-          : NodeFilter.FILTER_ACCEPT
-    });
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     let current = walker.currentNode;
     while (current) {
       forceOverflow(current);
@@ -90,7 +85,9 @@
   const flushPending = () => {
     scheduled = false;
     for (const node of pending) {
-      scanAndForce(node);
+      if (node.isConnected) {
+        scanAndForce(node);
+      }
     }
     pending.clear();
   };

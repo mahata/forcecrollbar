@@ -12,8 +12,8 @@
     style.textContent = `
       *::-webkit-scrollbar {
         display: block !important;
-        width: 12px !important;
-        height: 12px !important;
+        width: initial !important;
+        height: initial !important;
       }
     `;
 
@@ -58,6 +58,9 @@
     }
 
     const rootDocument = root instanceof Document ? root : root.ownerDocument;
+    if (!rootDocument) {
+      return;
+    }
     const walker = rootDocument.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     let current = walker.currentNode;
     while (current) {
@@ -94,6 +97,16 @@
   };
 
   const queueScan = (node) => {
+    for (const pendingNode of pending) {
+      if (pendingNode.contains(node)) {
+        return;
+      }
+    }
+    for (const pendingNode of Array.from(pending)) {
+      if (node.contains(pendingNode)) {
+        pending.delete(pendingNode);
+      }
+    }
     pending.add(node);
     if (!scheduled) {
       scheduled = true;
@@ -115,10 +128,21 @@
     }
   });
 
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class', 'style']
-  });
+  const startObserver = () => {
+    if (!document.documentElement) {
+      return;
+    }
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    });
+  };
+
+  if (document.documentElement) {
+    startObserver();
+  } else {
+    document.addEventListener('DOMContentLoaded', startObserver, { once: true });
+  }
 })();

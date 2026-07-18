@@ -63,7 +63,9 @@
 
   injectScrollbarStyle();
   forceOverflow(document.documentElement);
-  forceOverflow(document.body || document.documentElement);
+  if (document.body) {
+    forceOverflow(document.body);
+  }
 
   const run = () => scanAndForce(document);
 
@@ -99,7 +101,7 @@
       }
 
       for (const node of mutation.addedNodes) {
-        if (node instanceof Element || node instanceof Document) {
+        if (node instanceof Element) {
           queueScan(node);
         }
       }

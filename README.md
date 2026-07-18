@@ -1,4 +1,4 @@
-# forcecrollbar
+# Force Scrollbar
 A Chrome extension to display scrollbar even when the page author hides it with CSS.
 
 ## Load in Chrome

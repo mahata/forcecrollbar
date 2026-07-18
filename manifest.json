@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Force Scrollbar",
+  "version": "1.0.0",
+  "description": "Forcefully display scrollbars even when sites hide them with CSS.",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["force-scrollbar.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 (() => {
   const STYLE_ID = 'force-scrollbar-style';
-  const FORCED_ATTR = 'data-force-scrollbar-overflow';
 
   const injectScrollbarStyle = () => {
     if (document.getElementById(STYLE_ID)) {
@@ -25,30 +24,18 @@
       return;
     }
 
-    if (element.getAttribute(FORCED_ATTR) === 'true') {
-      return;
-    }
-
     const computed = getComputedStyle(element);
-    let changed = false;
 
     if (computed.overflow === 'hidden' || computed.overflow === 'clip') {
       element.style.setProperty('overflow', 'auto', 'important');
-      changed = true;
     }
 
     if (computed.overflowX === 'hidden' || computed.overflowX === 'clip') {
       element.style.setProperty('overflow-x', 'auto', 'important');
-      changed = true;
     }
 
     if (computed.overflowY === 'hidden' || computed.overflowY === 'clip') {
       element.style.setProperty('overflow-y', 'auto', 'important');
-      changed = true;
-    }
-
-    if (changed) {
-      element.setAttribute(FORCED_ATTR, 'true');
     }
   };
 

@@ -57,7 +57,8 @@
       return;
     }
 
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+    const rootDocument = root instanceof Document ? root : root.ownerDocument;
+    const walker = rootDocument.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     let current = walker.currentNode;
     while (current) {
       forceOverflow(current);

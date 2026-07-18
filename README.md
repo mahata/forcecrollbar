@@ -1,5 +1,5 @@
 # Force Scrollbar
-A Chrome extension to display scrollbar even when the page author hides it with CSS.
+A Chrome extension to display scrollbars even when the page author hides them with CSS.
 
 ## Load in Chrome
 1. Open `chrome://extensions`

@@ -1,14 +1,26 @@
-(() => {
-  const STYLE_ID = 'force-scrollbar-style';
+export const STYLE_ID = 'force-scrollbar-style';
 
-  const injectScrollbarStyle = () => {
-    if (document.getElementById(STYLE_ID)) {
-      return;
-    }
+const HIDDEN_OVERFLOW_VALUES = new Set(['hidden', 'clip']);
 
-    const style = document.createElement('style');
-    style.id = STYLE_ID;
-    style.textContent = `
+const OVERFLOW_AXES = [
+  { property: 'overflow', computedKey: 'overflow' },
+  { property: 'overflow-x', computedKey: 'overflowX' },
+  { property: 'overflow-y', computedKey: 'overflowY' },
+];
+
+export const overflowOverridesFor = (computed) =>
+  OVERFLOW_AXES.filter((axis) =>
+    HIDDEN_OVERFLOW_VALUES.has(computed[axis.computedKey]),
+  ).map((axis) => axis.property);
+
+export const injectScrollbarStyle = (targetDocument = document) => {
+  if (targetDocument.getElementById(STYLE_ID)) {
+    return;
+  }
+
+  const style = targetDocument.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = `
       *::-webkit-scrollbar {
         display: block !important;
         width: initial !important;
@@ -16,46 +28,40 @@
       }
     `;
 
-    (document.head || document.documentElement).appendChild(style);
-  };
+  (targetDocument.head || targetDocument.documentElement).appendChild(style);
+};
 
-  const forceOverflow = (element) => {
-    if (!(element instanceof Element)) {
-      return;
-    }
+export const forceOverflow = (element) => {
+  if (!(element instanceof Element)) {
+    return;
+  }
 
-    const computed = getComputedStyle(element);
+  const computed = getComputedStyle(element);
 
-    if (computed.overflow === 'hidden' || computed.overflow === 'clip') {
-      element.style.setProperty('overflow', 'auto', 'important');
-    }
+  for (const property of overflowOverridesFor(computed)) {
+    element.style.setProperty(property, 'auto', 'important');
+  }
+};
 
-    if (computed.overflowX === 'hidden' || computed.overflowX === 'clip') {
-      element.style.setProperty('overflow-x', 'auto', 'important');
-    }
+export const scanAndForce = (root) => {
+  if (!(root instanceof Element || root instanceof Document)) {
+    return;
+  }
 
-    if (computed.overflowY === 'hidden' || computed.overflowY === 'clip') {
-      element.style.setProperty('overflow-y', 'auto', 'important');
-    }
-  };
+  const rootDocument = root instanceof Document ? root : root.ownerDocument;
+  if (!rootDocument) {
+    return;
+  }
 
-  const scanAndForce = (root) => {
-    if (!(root instanceof Element || root instanceof Document)) {
-      return;
-    }
+  const walker = rootDocument.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+  let current = walker.currentNode;
+  while (current) {
+    forceOverflow(current);
+    current = walker.nextNode();
+  }
+};
 
-    const rootDocument = root instanceof Document ? root : root.ownerDocument;
-    if (!rootDocument) {
-      return;
-    }
-    const walker = rootDocument.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
-    let current = walker.currentNode;
-    while (current) {
-      forceOverflow(current);
-      current = walker.nextNode();
-    }
-  };
-
+export const bootstrap = () => {
   injectScrollbarStyle();
   forceOverflow(document.documentElement);
   if (document.body) {
@@ -125,7 +131,7 @@
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['class', 'style']
+      attributeFilter: ['class', 'style'],
     });
   };
 
@@ -134,4 +140,10 @@
   } else {
     document.addEventListener('DOMContentLoaded', startObserver, { once: true });
   }
-})();
+
+  return () => {
+    observer.disconnect();
+    document.removeEventListener('DOMContentLoaded', run);
+    document.removeEventListener('DOMContentLoaded', startObserver);
+  };
+};

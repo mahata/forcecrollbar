@@ -97,15 +97,17 @@
   };
 
   const queueScan = (node) => {
+    const descendantsToRemove = [];
     for (const pendingNode of pending) {
       if (pendingNode.contains(node)) {
         return;
       }
-    }
-    for (const pendingNode of Array.from(pending)) {
       if (node.contains(pendingNode)) {
-        pending.delete(pendingNode);
+        descendantsToRemove.push(pendingNode);
       }
+    }
+    for (const pendingNode of descendantsToRemove) {
+      pending.delete(pendingNode);
     }
     pending.add(node);
     if (!scheduled) {

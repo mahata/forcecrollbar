@@ -1,0 +1,25 @@
+{
+  "name": "force-scrollbar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chrome extension that forcefully displays scrollbars hidden by CSS.",
+  "license": "MIT",
+  "scripts": {
+    "test": "vp test",
+    "build": "vp build",
+    "check": "vp check"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.14.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "@voidzero-dev/vite-plus-core": "^0.2.5",
+    "jsdom": "^29.1.1",
+    "vite-plus": "^0.2.5"
+  }
+}

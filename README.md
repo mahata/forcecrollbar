@@ -5,6 +5,6 @@ A Chrome extension to display scrollbar even when the page author hides it with 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select this repository directory (`/tmp/workspace`)
+4. Select the directory where you cloned this repository
 
 The extension injects a content script on every page and force-enables hidden scrollbars.

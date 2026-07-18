@@ -53,11 +53,12 @@
       return;
     }
 
-    if (root instanceof Element) {
-      forceOverflow(root);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+    let current = walker.currentNode;
+    while (current) {
+      forceOverflow(current);
+      current = walker.nextNode();
     }
-
-    root.querySelectorAll('*').forEach(forceOverflow);
   };
 
   injectScrollbarStyle();
@@ -72,15 +73,34 @@
     run();
   }
 
+  let scheduled = false;
+  const pending = new Set();
+
+  const flushPending = () => {
+    scheduled = false;
+    for (const node of pending) {
+      scanAndForce(node);
+    }
+    pending.clear();
+  };
+
+  const queueScan = (node) => {
+    pending.add(node);
+    if (!scheduled) {
+      scheduled = true;
+      requestAnimationFrame(flushPending);
+    }
+  };
+
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === 'attributes' && mutation.target instanceof Element) {
-        forceOverflow(mutation.target);
+        queueScan(mutation.target);
       }
 
       for (const node of mutation.addedNodes) {
-        if (node instanceof Element) {
-          scanAndForce(node);
+        if (node instanceof Element || node instanceof Document) {
+          queueScan(node);
         }
       }
     }

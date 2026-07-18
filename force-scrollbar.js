@@ -25,6 +25,10 @@
       return;
     }
 
+    if (element.getAttribute(FORCED_ATTR) === 'true') {
+      return;
+    }
+
     const computed = getComputedStyle(element);
     let changed = false;
 
@@ -53,7 +57,12 @@
       return;
     }
 
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) =>
+        node instanceof Element && node.getAttribute(FORCED_ATTR) === 'true'
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT
+    });
     let current = walker.currentNode;
     while (current) {
       forceOverflow(current);
@@ -97,7 +106,7 @@
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === 'attributes' && mutation.target instanceof Element) {
-        queueScan(mutation.target);
+        forceOverflow(mutation.target);
       }
 
       for (const node of mutation.addedNodes) {

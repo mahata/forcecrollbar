@@ -14,6 +14,13 @@ vp build     # bundle the extension into dist/
 The source lives in `src/`, and `vp build` emits the loadable extension
 (`force-scrollbar.js` plus `manifest.json`) into `dist/`.
 
+## Update CI dependencies
+
+Dependabot checks GitHub Actions and pnpm dependencies weekly. When changing
+`uses:` references manually or adding a workflow that uses actions, run
+`gh actions-lock` from the repository root and commit the generated
+`.github/workflows/actions.lock` with the workflow changes.
+
 ## Load in Chrome
 1. Run `vp build` to generate `dist/`
 2. Open `chrome://extensions`
